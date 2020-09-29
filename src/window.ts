@@ -52,6 +52,7 @@ export class ShellWindow {
     stack: number | null = null;
     known_workspace: number;
     grab: boolean = false;
+    ignore_detach: boolean = false;
 
     was_attached_to?: [Entity, boolean];
 
@@ -59,6 +60,8 @@ export class ShellWindow {
     smart_gapped: boolean = false;
 
     border: St.Bin = new St.Bin({ style_class: 'pop-shell-active-hint pop-shell-border-normal' });
+
+    prev_rect: null | Rectangular = null;
 
     private was_hidden: boolean = false;
 
@@ -102,12 +105,12 @@ export class ShellWindow {
         });
 
         this.hide_border()
-        
+
         let settings = ext.settings;
         let selected_color = settings.hint_color_rgba();
-    
+
         this.border.set_style(`border-color: ${selected_color}`);
-        
+
         let change_id = settings.ext.connect('changed', (_, key) => {
             if (this.border) {
                 if (key === 'hint-color-rgba') {
@@ -117,7 +120,7 @@ export class ShellWindow {
             }
             return false;
         });
-        
+
         this.border.connect('destroy', () => { settings.ext.disconnect(change_id) });
 
         global.window_group.add_child(this.border);
